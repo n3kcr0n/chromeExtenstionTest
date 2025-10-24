@@ -9,7 +9,7 @@ test.describe.serial('API CRUD: restful API: https://restful-api.dev/: ', { tag:
     const apiService = new restfulApiService();
     let id: string;
 
-    test('GET: Google Pixel 6 Pro Objects', async ({ request }) => {
+    test('GET: Retrive devices', { tag: ['@API-01'] }, async ({ request }) => {
         const response = await apiService.getGadget(request);
         const body = await response.json();
         expect(body).toEqual(
@@ -21,7 +21,7 @@ test.describe.serial('API CRUD: restful API: https://restful-api.dev/: ', { tag:
         expect(body.some((item: any) => item.name === 'Google Pixel 6 Pro')).toBeTruthy();
     });
 
-    test('POST: Create Apple MacBook Pro 16', async ({ request }) => {
+    test('POST: Create devices', { tag: ['@API-02'] }, async ({ request }) => {
         const response = await apiService.createGadget(request, macBookData)
         const body = await response.json()
         id = body.id
@@ -30,19 +30,19 @@ test.describe.serial('API CRUD: restful API: https://restful-api.dev/: ', { tag:
         expect(body.name).toBe('Apple MacBook Pro 16');
     });
 
-    test('PUT: Modify to Apple MacBook Pro 99', async ({ request }) => {
+    test('PUT: Modify device', { tag: ['@API-03'] }, async ({ request }) => {
         const response = await apiService.updateGadget(request, id, appMacBookProMax)
         expect(response.status()).toEqual(200);
         expect(await response.text()).toContain('Apple MacBook Pro 99')
     })
 
-    test('PATCH: Slight Modification to Apple MacBook Pro 100', async ({ request }) => {
+    test('PATCH: Slightly Modification of device', { tag: ['@API-03'] }, async ({ request }) => {
         const response = await apiService.partiallyModify(request, id, imacData)
         expect(response.status()).toEqual(200);
         expect(await response.text()).toContain('Apple MacBook Pro 100')
     })
 
-    test('DELETE: Object the created object', async ({ request }) => {
+    test('DELETE: Delete Record of device', { tag: ['@API-04'] }, async ({ request }) => {
         const response = await apiService.deleteGadget(request, id)
         expect(response.status()).toEqual(200);
         const responseText = await response.text();
