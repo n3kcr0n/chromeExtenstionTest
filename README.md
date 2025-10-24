@@ -16,15 +16,4 @@ API Folder: Contains the api test data and will be used for CRUD Test, it also h
 
 Test Run: Test can be triggered from the terminal using this pre-made commands
 i.e: npm run test:mobile:pixel
-
-"test": "npx playwright test",
-"test:debug": "npx playwright test --debug",
-"test:uimode": "npx playwright test --ui",
-"test:smoke": "npx playwright test --grep @Smoke",
-"test:regression": "npx playwright test --grep @Regression",
-"test:ui": "npx playwright test --grep @Ui",
-"test:api": "npx playwright test --project=\"API Tests\"",
-"test:desktop:chrome": "npx playwright test --project=\"Desktop (chromium)\"",
-"test:desktop:edge": "npx playwright test --project=\"Dekstop (Microsoft Edge)\"",
-"test:mobile:iphone": "npx playwright test --project=\"Mobile Chrome (iPhone 12)\"",
-"test:mobile:pixel": "npx playwright test --project=\"Mobile Chrome (Pixel 5)\""
+Note: Pre made commands for triggering a test can be found on package.json script property
