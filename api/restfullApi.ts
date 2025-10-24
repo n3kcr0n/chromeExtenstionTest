@@ -4,7 +4,7 @@ import { config } from "../config/testConfig";
 export default class RestfulApiService {
     readonly path = '/objects';
     readonly baseUrl = config.processEnv.baseUrl
-    //Offical Site: https://restful-api.dev/
+    //Official Site: https://restful-api.dev/
 
     /**
      * GET Request that return array of existing records
