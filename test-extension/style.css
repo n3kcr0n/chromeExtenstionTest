@@ -1,0 +1,83 @@
+/* Default dark mode */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0d1117;
+  color: #f0f6fc;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Light mode (optional override) */
+body.light-mode {
+  background-color: #f9f9f9;
+  color: #222;
+}
+
+/* Login card */
+.login-card {
+  background-color: #161b22;
+  color: #f0f6fc;
+  border-radius: 12px;
+  padding: 30px;
+  width: 340px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.light-mode .login-card {
+  background-color: #fff;
+  color: #111;
+}
+
+/* Inputs */
+input {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #f0f6fc;
+  padding: 8px;
+  width: 100%;
+}
+
+body.light-mode input {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  color: #111;
+}
+
+/* Buttons */
+.btn {
+  background-color: #238636;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.btn:hover {
+  background-color: #2ea043;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#theme-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #f0f6fc;
+}
+
+body.light-mode #theme-btn {
+  color: #111;
+}

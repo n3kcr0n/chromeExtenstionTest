@@ -1,0 +1,17 @@
+{
+    "manifest_version": 3,
+    "name": "Test Extension",
+    "version": "1.0",
+    "description": "A simple test extension for Playwright testing.",
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "windows",
+        "system.display"
+    ],
+    "action": {
+        "default_popup": "login.html",
+        "default_title": "Open Login"
+    }
+}

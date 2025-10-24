@@ -1,0 +1,33 @@
+{
+  "name": "chrome_extension_test",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:debug": "npx playwright test --debug",
+    "test:uimode": "npx playwright test --ui",
+    "test:smoke": "npx playwright test --grep @Smoke",
+    "test:regression": "npx playwright test --grep @Regression",
+    "test:ui": "npx playwright test --grep @Ui",
+    "test:api": "npx playwright test --project=\"API Tests\"",
+    "test:desktop:chrome": "npx playwright test --project=\"Desktop (chromium)\"",
+    "test:desktop:edge": "npx playwright test --project=\"Dekstop (Microsoft Edge)\"",
+    "test:mobile:iphone": "npx playwright test --project=\"Mobile Chrome (iPhone 12)\"",
+    "test:mobile:pixel": "npx playwright test --project=\"Mobile Chrome (Pixel 5)\""
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^24.8.1",
+    "dotenv": "^17.2.3",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "cryptr": "^6.4.0",
+    "fs-extra": "^11.3.2"
+  }
+}

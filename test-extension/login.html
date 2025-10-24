@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Extension Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="login-card">
+    <div class="theme-toggle">
+      <button id="theme-btn" aria-label="Toggle dark mode">🌙</button>
+    </div>
+
+    <div class="header">
+     <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f512.svg" 
+     alt="Logo" 
+     class="logo" 
+     width="48" 
+     height="48" />
+      <h1 class="title">TEST EXTENSION</h1>
+      <p class="subtitle">Sign in to continue</p>
+    </div>
+
+    <form id="login-form" class="form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" placeholder="Enter username" required />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Enter password" required />
+      </div>
+
+      <button type="submit" class="btn">Login</button>
+    </form>
+
+    <div id="message" class="message"></div>
+
+    <footer class="footer">
+      <p>Need help? <br> <a href="#">Contact support</a></p>
+    </footer>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>

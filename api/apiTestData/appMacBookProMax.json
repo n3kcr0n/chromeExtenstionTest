@@ -1,0 +1,12 @@
+{
+    "data":{
+        "name": "Apple MacBook Pro 99",
+        "data": {
+        "year": 2050,
+        "price": 9999999,
+        "CPU model": "Intel Core i9",
+        "Hard disk size": "1 TB",
+        "color": "black"
+        }
+    }
+}
