@@ -55,3 +55,6 @@ npm run test:ui
 npm run test:api
 npm run test:debug
 npm run test:uimode
+
+Note: Password that store in the .env should in a encrypted format
+i.e: ie52Dk2OZPAzPnk0feJe0F88Vyj43dbT3Qq90/v7R6nM44ya70K5FD8SHwOY/NhWIPhGAyZiCC6NjJI0J11O4zFig
