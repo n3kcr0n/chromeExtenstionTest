@@ -1,19 +1,57 @@
-This is just a test project that simulates chrome extension and how to test using custome fixture.
-Note: Playwright atm can support chrome extensions and chromium based browsers using (Manifest v3), firefox and safari is not supported yet. This test only runs chromium browsers, other browser is disabled in the playwright config.
+Playwright Chrome Extension Test Project
 
-Local Development:
-Note: Without the .env file this test project will not run, all of the environment,users and app related constant will be fetch under .env file.
-.env should be manually created on your local development machine with properties listed below
-i.e .env
-TEST_USERNAME,
-TEST_PASSWORD,
-SECRET_KEY,
-TEST_EXTENSION,
-RESTFUL_API,
+This project demonstrates how to test a Chrome Extension using Playwright with a custom fixture setup.
+It simulates extension behavior and validates functionality across various test cases in a Chromium environment.
 
-PageObjects: All page object is under page_obj folder it holds the selector for each web elements page
-API Folder: Contains the api test data and will be used for CRUD Test, it also hold the object of the resufull api
+Note:
+Playwright currently supports Chromium-based browsers with Manifest V3 extensions.
+Firefox and Safari are not supported at this time.
+All tests in this project are configured to run only on Chromium — other browsers are disabled in the Playwright configuration.
 
-Test Run: Test can be triggered from the terminal using this pre-made commands
-i.e: npm run test:mobile:pixel
-Note: Pre made commands for triggering a test can be found on package.json script property
+⚙️ Setup & Installation
+
+1. Clone the Repository
+   git clone <repository-url>
+   cd <project-directory>
+
+2. Install Dependencies
+   Ensure you have Node.js (v18 or later) installed, then run:
+   npm install
+
+3. Create a .env File
+   This project requires a .env file for environment variables. Without it, the tests will not execute.
+   Create a .env file in the project root and include the following variables:
+   💡 Tip: Never commit your .env file to version control. Keep it local and secure.
+   TEST_USERNAME=,
+   TEST_PASSWORD=,
+   SECRET_KEY=,
+   TEST_EXTENSION=,
+   RESTFUL_API=,
+
+4. Run Tests
+   Use any of the pre-defined npm scripts to start a test run.
+   Example: npm run test:ui //This will execute evert Ui test
+
+🧱 Project Structure
+Folder / File Description
+page_obj/ Contains Page Object Models defining selectors, actions, and reusable UI interactions.
+api/ Holds API test data, test payloads, and CRUD operation methods for RESTful endpoints.
+tests/ Contains the main test suites executed via Playwright.
+playwright.config.ts Defines test configuration, environment settings, and browser options.
+
+🧩 Local Development Notes
+
+The .env file is mandatory for all test runs.
+Environment variables define credentials, app constants, and configuration keys.
+Test execution is limited to Chromium browsers for Manifest V3 compatibility.
+Custom fixtures handle setup, teardown, and browser context management.
+
+🚀 Running Tests
+To execute tests from the terminal, use the provided npm commands.
+Refer to your package.json for a complete list of available test scripts.
+
+Examples:
+npm run test:ui
+npm run test:api
+npm run test:debug
+npm run test:uimode
