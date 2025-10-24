@@ -5,11 +5,11 @@ Local Development:
 Note: Without the .env file this test project will not run, all of the environment,users and app related constant will be fetch under .env file.
 .env should be manually created on your local development machine with properties listed below
 i.e .env
-TEST_USERNAME
-TEST_PASSWORD
-SECRET_KEY
-TEST_EXTENSION
-RESTFUL_API
+TEST_USERNAME,
+TEST_PASSWORD,
+SECRET_KEY,
+TEST_EXTENSION,
+RESTFUL_API,
 
 PageObjects: All page object is under page_obj folder it holds the selector for each web elements page
 API Folder: Contains the api test data and will be used for CRUD Test, it also hold the object of the resufull api
