@@ -10,7 +10,7 @@ test.describe.serial('API CRUD: restful API: https://restful-api.dev/: ', { tag:
     let id: string;
 
     test('GET: Google Pixel 6 Pro Objects', async ({ request }) => {
-        const response = await apiService.getGadgets(request);
+        const response = await apiService.getGadget(request);
         const body = await response.json();
         expect(body).toEqual(
             expect.arrayContaining([
@@ -37,7 +37,7 @@ test.describe.serial('API CRUD: restful API: https://restful-api.dev/: ', { tag:
     })
 
     test('PATCH: Slight Modification to Apple MacBook Pro 100', async ({ request }) => {
-        const response = await apiService.patchGadget(request, id, imacData)
+        const response = await apiService.partiallyModify(request, id, imacData)
         expect(response.status()).toEqual(200);
         expect(await response.text()).toContain('Apple MacBook Pro 100')
     })
