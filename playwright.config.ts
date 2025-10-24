@@ -63,11 +63,30 @@ export default defineConfig({
       testMatch: /.*mobile\/.*\.spec\.ts/,
     },
     {
+      name: 'Mobile Chrome (iPhone 13)',
+      use: { ...devices['iPhone 13 Pro Max'] },
+      testMatch: /.*mobile\/.*\.spec\.ts/,
+    },
+    {
+      name: 'Mobile Chrome (iPhone 15)',
+      use: { ...devices['iPhone 15 Pro Max'] },
+      testMatch: /.*mobile\/.*\.spec\.ts/,
+    },
+    {
       name: 'Mobile Chrome (Pixel 5)',
       use: { ...devices['Pixel 5'] },
       testMatch: /.*mobile\/.*\.spec\.ts/,
     },
-
+    {
+      name: 'Mobile Chrome (Nexus 6P)',
+      use: { ...devices['Pixel 5'] },
+      testMatch: /.*mobile\/.*\.spec\.ts/,
+    },
+    {
+      name: 'Mobile Chrome (Galaxy S5)',
+      use: { ...devices['Galaxy S5'] },
+      testMatch: /.*mobile\/.*\.spec\.ts/,
+    },
 
     // {
     //   name: 'Desktop (firefox)',
@@ -94,10 +113,7 @@ export default defineConfig({
     //   name: 'Microsoft Edge',
     //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
     // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+
   ],
 
   /* Run your local dev server before starting the tests */
