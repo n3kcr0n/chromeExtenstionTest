@@ -66,15 +66,33 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           mkdir -p ./public/reports
-          cp -r playwright-report-${{ steps.timestamp.outputs.ts }} ./public/reports/
-          echo "Report generated on ${{ steps.timestamp.outputs.ts }}" > ./public/reports/${{ steps.timestamp.outputs.ts }}/README.txt
+          mv playwright-report-${{ steps.timestamp.outputs.ts }} ./public/reports/playwright-report-${{ steps.timestamp.outputs.ts }}
 
-          # Auto-generate index with timestamped links
-          echo "<html><body><h1>Playwright Test Reports</h1><ul>" > ./public/index.html
-          for d in $(ls -dt ./public/reports/*/); do
+          echo "Report generated on ${{ steps.timestamp.outputs.ts }}" > ./public/reports/playwright-report-${{ steps.timestamp.outputs.ts }}/README.txt
+
+          # Auto-generate HTML index (latest first)
+          echo "<html><head><title>Playwright Test Reports</title><style>
+          body { font-family: Arial, sans-serif; padding: 20px; background-color: #fafafa; color: #333; }
+          h1 { color: #222; }
+          a { text-decoration: none; color: #0366d6; }
+          a:hover { text-decoration: underline; }
+          .latest { background: #0366d6; color: #fff; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; display: inline-block; }
+          ul { list-style-type: none; padding: 0; }
+          li { margin: 6px 0; }
+          </style></head><body>" > ./public/index.html
+
+          echo "<h1>Playwright Test Reports</h1>" >> ./public/index.html
+
+          latest=$(ls -dt ./public/reports/playwright-report-*/ | head -1)
+          latest_ts=$(basename "$latest")
+          echo "<a class='latest' href='reports/${latest_ts}/index.html'>View Latest Report (${latest_ts})</a>" >> ./public/index.html
+          echo "<h2>All Reports</h2><ul>" >> ./public/index.html
+
+          for d in $(ls -dt ./public/reports/playwright-report-*/); do
             ts=$(basename "$d")
             echo "<li><a href=\"reports/${ts}/index.html\">${ts}</a></li>" >> ./public/index.html
           done
+
           echo "</ul></body></html>" >> ./public/index.html
 
       - name: 🚀 Deploy Playwright report to GitHub Pages (keep history)
@@ -92,7 +110,7 @@ jobs:
         run: |
           git fetch origin gh-pages
           git checkout gh-pages
-          ls -td playwright-report-* | tail -n +11 | xargs rm -rf || true
+          ls -td reports/playwright-report-* | tail -n +11 | xargs rm -rf || true
           git add .
           git commit -m "🧹 Clean old reports" || true
           git push origin gh-pages
