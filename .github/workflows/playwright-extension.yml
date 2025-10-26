@@ -42,7 +42,7 @@ jobs:
 
       - name: 🧩 Run Playwright tests (headed mode)
         run: |
-          npx playwright test --project=Chromium --headed --reporter=list,html
+          npx playwright test
         env:
           CI: true
 
