@@ -41,9 +41,9 @@ jobs:
         shell: bash
 
       # 🔹 Generate timestamp early so we can use it to name the report folder
-      - name: 🕒 Generate timestamp
+      - name: 🕒 Generate readable timestamp
         id: timestamp
-        run: echo "ts=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
+        run: echo "ts=$(date '+%Y-%m-%d_%I-%M-%S_%p')" >> $GITHUB_OUTPUT
 
       - name: 🧩 Run Playwright tests (headed mode via Xvfb)
         id: run_tests
@@ -70,30 +70,39 @@ jobs:
 
           echo "Report generated on ${{ steps.timestamp.outputs.ts }}" > ./public/reports/playwright-report-${{ steps.timestamp.outputs.ts }}/README.txt
 
-          # Auto-generate HTML index (latest first)
-          echo "<html><head><title>Playwright Test Reports</title><style>
-          body { font-family: Arial, sans-serif; padding: 20px; background-color: #fafafa; color: #333; }
-          h1 { color: #222; }
-          a { text-decoration: none; color: #0366d6; }
+          # 🖤 Auto-generate dark themed HTML index with redirect & timestamp badge
+          echo "<html><head><title>Playwright Test Reports</title>
+          <meta http-equiv='refresh' content='5;url=reports/playwright-report-${{ steps.timestamp.outputs.ts }}/index.html'>
+          <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; background-color: #0d1117; color: #c9d1d9; }
+          h1, h2 { color: #58a6ff; }
+          a { text-decoration: none; color: #58a6ff; }
           a:hover { text-decoration: underline; }
-          .latest { background: #0366d6; color: #fff; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; display: inline-block; }
-          ul { list-style-type: none; padding: 0; }
-          li { margin: 6px 0; }
+          .latest { background: #238636; color: #fff; padding: 10px 15px; border-radius: 8px; margin-bottom: 25px; display: inline-block; font-weight: bold; }
+          .badge { background: #30363d; color: #8b949e; border-radius: 12px; padding: 4px 10px; font-size: 12px; margin-left: 10px; vertical-align: middle; }
+          ul { list-style-type: none; padding: 0; margin-top: 10px; }
+          li { margin: 8px 0; font-size: 16px; }
+          .footer { margin-top: 40px; font-size: 12px; color: #8b949e; border-top: 1px solid #30363d; padding-top: 10px; }
+          .redirect { background: #161b22; border: 1px solid #30363d; padding: 12px; border-radius: 6px; margin-bottom: 20px; }
           </style></head><body>" > ./public/index.html
 
           echo "<h1>Playwright Test Reports</h1>" >> ./public/index.html
+          echo "<div class='redirect'>⏳ Redirecting automatically to the latest report...<br>
+          If you are not redirected in 5 seconds, <a href='reports/playwright-report-${{ steps.timestamp.outputs.ts }}/index.html'>click here</a>.</div>" >> ./public/index.html
 
           latest=$(ls -dt ./public/reports/playwright-report-*/ | head -1)
           latest_ts=$(basename "$latest")
-          echo "<a class='latest' href='reports/${latest_ts}/index.html'>View Latest Report (${latest_ts})</a>" >> ./public/index.html
-          echo "<h2>All Reports</h2><ul>" >> ./public/index.html
 
+          echo "<a class='latest' href='reports/${latest_ts}/index.html'>View Latest Report (${latest_ts})</a>" >> ./public/index.html
+          echo "<span class='badge'>Last updated: $(date '+%B %d, %Y %I:%M:%S %p')</span>" >> ./public/index.html
+
+          echo "<h2>All Reports</h2><ul>" >> ./public/index.html
           for d in $(ls -dt ./public/reports/playwright-report-*/); do
             ts=$(basename "$d")
-            echo "<li><a href=\"reports/${ts}/index.html\">${ts}</a></li>" >> ./public/index.html
+            echo "<li>🕒 <a href=\"reports/${ts}/index.html\">${ts}</a></li>" >> ./public/index.html
           done
 
-          echo "</ul></body></html>" >> ./public/index.html
+          echo "</ul><div class='footer'>Generated automatically via GitHub Actions · $(date)</div></body></html>" >> ./public/index.html
 
       - name: 🚀 Deploy Playwright report to GitHub Pages (keep history)
         if: github.ref == 'refs/heads/main'
