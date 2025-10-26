@@ -86,3 +86,13 @@ jobs:
           publish_branch: gh-pages
           keep_files: true
           commit_message: "📊 Publish Playwright report - ${{ steps.timestamp.outputs.ts }}"
+
+      # --- Clean up old reports (optional, keeps latest 10) ---
+      - name: 🧹 Keep only latest 10 reports
+        run: |
+          git fetch origin gh-pages
+          git checkout gh-pages
+          ls -td playwright-report-* | tail -n +11 | xargs rm -rf || true
+          git add .
+          git commit -m "🧹 Clean old reports" || true
+          git push origin gh-pages
