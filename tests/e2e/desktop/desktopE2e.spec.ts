@@ -3,7 +3,7 @@ import PageManager from '../../../page_obj/pageManager';
 import { test } from '../../cutomTestFixtures/fixtures';
 import { expect } from '@playwright/test';
 
-test.describe('Mobile Test Suite: ', { tag: ['@Regression', '@Desktop', '@Ui'] },
+test.describe('Desktop Test Suite: ', { tag: ['@Regression', '@Desktop', '@Ui'] },
   () => {
     test.beforeEach(async ({ page, extensionId }) => {
       await test.step('Load the extension', async () => {
@@ -24,21 +24,36 @@ test.describe('Mobile Test Suite: ', { tag: ['@Regression', '@Desktop', '@Ui'] }
         //console.log(`Extension loaded in ${loadTime.toFixed(2)} ms`);
         expect(loadTime).toBeLessThan(2000);
       })
-      await expect(page.getByText('TEST EXTENSION')).toBeVisible()
+      await expect(page.getByText('Cyber Monitor')).toBeVisible()
       await expect(page.locator('form#login-form')).toBeVisible();
     });
 
+    test('Verify if the extension background and popup scripts loaded properly', { tag: ['@UI-02', '@Functional'] }, async ({ context }) => {
+      const background = context.serviceWorkers();
+      expect(background.length).toBeGreaterThan(0);
+    })
+
+    test('Verify the extension icon is visible on the browser toolbar', { tag: ['@UI-03', '@Functional'] }, async ({ page, extensionId }) => {
+      await test.step('Load the extension', async () => {
+        await page.goto(`chrome-extension://${extensionId}/login.html`);
+        await page.waitForLoadState('domcontentloaded');
+        const extensionName = 'Cyber Monitor';
+        const extensionCard = page.locator(`text=${extensionName}`);
+        await expect(extensionCard).toBeVisible();
+      })
+    })
+
     test('Validate if the extension logo and header is visible to the end user',
-      { tag: ['@UI-02', '@Functional'] }, async ({ page }) => {
+      { tag: ['@UI-04', '@Functional'] }, async ({ page }) => {
         const pm = new PageManager(page)
         await expect(pm.loginPage().header).toBeVisible()
         await expect(pm.loginPage().logo).toBeVisible()
       })
 
     test('Validate “Username” and “Password” fields are required ',
-      { tag: ['@UI-03', '@Functional'] }, async ({ page }) => {
+      { tag: ['@UI-05', '@Functional'] }, async ({ page }) => {
         const pm = new PageManager(page)
-        await test.step('Click the login button', async () => {
+        await test.step('User try to login', async () => {
           await pm.loginPage().normalLogin('', '')
           const validationMessage = await page.$eval(
             'input[name="username"]',
@@ -49,7 +64,7 @@ test.describe('Mobile Test Suite: ', { tag: ['@Regression', '@Desktop', '@Ui'] }
       })
 
     test('Validate “Password” fields are required ',
-      { tag: ['@UI-04', '@Functional'] }, async ({ page }) => {
+      { tag: ['@UI-06', '@Functional'] }, async ({ page }) => {
         const pm = new PageManager(page)
         await test.step('Fill the user name and click the login button', async () => {
           await pm.loginPage().normalLogin('test', '')
@@ -61,6 +76,15 @@ test.describe('Mobile Test Suite: ', { tag: ['@Regression', '@Desktop', '@Ui'] }
         })
       })
 
+    test('Verify if the extension detects weak password of the user',
+      { tag: ['@UI-07', '@Functional'] }, async ({ page }) => {
+        const pm = new PageManager(page)
+        await test.step('User try to login using weak password', async () => {
+          await pm.loginPage().normalLogin('test', 'password')
+        })
+        await expect(pm.loginPage().passwordMessage).toContainText('Password: Very weak — Common password');
+      })
+
     test('Validate that contact support is visible for the user',
       { tag: ['@UX-01', '@Functional'] }, async ({ page }) => {
         const pm = new PageManager(page)
@@ -68,7 +92,7 @@ test.describe('Mobile Test Suite: ', { tag: ['@Regression', '@Desktop', '@Ui'] }
       })
 
     test('Verify if the valid user can login using good credentials @Smoke',
-      { tag: ['@UI-05', '@Smoke', '@Functional'] }, async ({ page }) => {
+      { tag: ['@UI-08', '@Smoke', '@Functional'] }, async ({ page }) => {
         const pm = new PageManager(page)
         await test.step('User enter his/her credentials and click the login button', async () => {
           await pm.loginPage().encryptedLogin(config.processEnv.username, config.processEnv.password)
@@ -77,7 +101,7 @@ test.describe('Mobile Test Suite: ', { tag: ['@Regression', '@Desktop', '@Ui'] }
       })
 
     test("Verify if the invalid user can't login using bad credentials",
-      { tag: ['@UI-06', '@Functional'] }, async ({ page }) => {
+      { tag: ['@UI-09', '@Functional'] }, async ({ page }) => {
         const pm = new PageManager(page)
         await test.step('User enter his/her credentials and click the login button', async () => {
           await pm.loginPage().normalLogin('test', 'test123')
@@ -86,7 +110,7 @@ test.describe('Mobile Test Suite: ', { tag: ['@Regression', '@Desktop', '@Ui'] }
       })
 
     test('Verify password field should mask password input with asterisks or dots',
-      { tag: ['@UI-07', '@Functional'] }, async ({ page }) => {
+      { tag: ['@UI-10', '@Functional'] }, async ({ page }) => {
         const pm = new PageManager(page)
         await test.step('User enter his/her credentials and click the login button', async () => {
           await pm.loginPage().normalLogin('test', 'test123')
@@ -96,12 +120,11 @@ test.describe('Mobile Test Suite: ', { tag: ['@Regression', '@Desktop', '@Ui'] }
       })
 
     test('Verify if the theme button is working properly',
-      { tag: ['@UI-08', '@Functional'] }, async ({ page }) => {
+      { tag: ['@UI-11', '@Functional'] }, async ({ page }) => {
         const pm = new PageManager(page)
         await expect(pm.loginPage().themeBtn).toBeVisible()
         const toggle = pm.loginPage().themeBtn
         const initialClass = await pm.loginPage().body.getAttribute('class');
-        console.log(initialClass)
 
         if (initialClass?.includes('dark-mode')) {
           await toggle.click();

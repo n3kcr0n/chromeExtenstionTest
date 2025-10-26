@@ -6,6 +6,7 @@ export default class LoginPage {
     readonly logo: Locator;
     readonly username: Locator;
     readonly password: Locator;
+    readonly passwordMessage: Locator;
     readonly themeBtn: Locator;
     readonly loginBtn: Locator;
     readonly message: Locator;
@@ -17,6 +18,7 @@ export default class LoginPage {
         this.logo = this.page.locator("img[class='logo']")
         this.username = this.page.locator('#username')
         this.password = this.page.locator('#password')
+        this.passwordMessage = this.page.locator('#password-strength')
         this.themeBtn = this.page.locator('#theme-btn')
         this.loginBtn = this.page.locator('button[type="submit"]')
         this.message = this.page.locator('#message')

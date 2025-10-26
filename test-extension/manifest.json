@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Test Extension",
+    "name": "Cyber Monitor",
     "version": "1.0",
     "description": "A simple test extension for Playwright testing.",
     "background": {
