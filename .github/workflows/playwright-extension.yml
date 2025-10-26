@@ -1,0 +1,83 @@
+name: Chromium Extension Playwright Tests
+
+on:
+  push:
+    branches: [main, feature, develop]
+  pull_request:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  test:
+    name: Run Playwright Tests (Headed Mode)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🧱 Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: 🔐 Create .env file from GitHub Secrets
+        run: |
+          echo "TEST_USERNAME=${{ secrets.TEST_USERNAME }}" >> .env
+          echo "TEST_PASSWORD=${{ secrets.TEST_PASSWORD }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "TEST_EXTENSION=${{ secrets.TEST_EXTENSION }}" >> .env
+          echo "RESTFUL_API=${{ secrets.RESTFUL_API }}" >> .env
+          echo ".env file created"
+        shell: bash
+
+      - name: 🧩 Run Playwright tests (headed mode)
+        run: |
+          npx playwright test --project=Chromium --headed --reporter=list,html
+        env:
+          CI: true
+
+      - name: 🕒 Generate timestamp
+        id: timestamp
+        run: echo "ts=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
+
+      - name: 📤 Upload Playwright test report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ steps.timestamp.outputs.ts }}
+          path: playwright-report/
+          retention-days: 30
+
+      - name: 📁 Prepare timestamped report for Pages
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p ./public/reports/${{ steps.timestamp.outputs.ts }}
+          cp -r playwright-report/* ./public/reports/${{ steps.timestamp.outputs.ts }}/
+          echo "Report generated on ${{ steps.timestamp.outputs.ts }}" > ./public/reports/${{ steps.timestamp.outputs.ts }}/README.txt
+
+          # Auto-generate report index
+          echo "<html><body><h1>Playwright Test Reports</h1><ul>" > ./public/index.html
+          for d in $(ls -dt ./public/reports/*/); do
+            ts=$(basename "$d")
+            echo "<li><a href=\"reports/${ts}/index.html\">${ts}</a></li>" >> ./public/index.html
+          done
+          echo "</ul></body></html>" >> ./public/index.html
+
+      - name: 🚀 Deploy Playwright report to GitHub Pages (keep history)
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          keep_files: true
+          commit_message: "📊 Publish Playwright report - ${{ steps.timestamp.outputs.ts }}"
