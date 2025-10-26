@@ -1,7 +1,15 @@
-Playwright Chrome Extension Test Project
+Cyber Monitor:
+Playwright Chrome/Edge Extension Test Project
+This project demonstrates how to test a Chrome Extension using Playwright with a custom fixture setup. This simulates extension behavior and validates functionality across various test cases in a Chromium environment.
 
-This project demonstrates how to test a Chrome Extension using Playwright with a custom fixture setup.
-It simulates extension behavior and validates functionality across various test cases in a Chromium environment.
+Assumption: Demonstrate an actual user login scenario from a browser extension from normal login attemps upto negative login attemps and security. The extension also demonstrate and detect if the password of the user needs some attention to be updated to have best possible combination.
+
+Test scenario coverage includes:
+*Performance(loading time)
+*UI(Element validations)
+*Functional(logins) for both positive and negative path
+*Security (login attemp using malicious scripts)
+\*API (Create,Read,Update,Patch,Delete Functionality)
 
 Note:
 Playwright currently supports Chromium-based browsers with Manifest V3 extensions.
