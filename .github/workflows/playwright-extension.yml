@@ -40,9 +40,12 @@ jobs:
           echo ".env file created"
         shell: bash
 
-      - name: 🧩 Run Playwright tests (headed mode)
+      - name: 🧩 Run Playwright tests (headed mode via Xvfb)
+        id: run_tests
         run: |
-          npx playwright test
+          set -e
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
+            npx playwright test --headed
         env:
           CI: true
 
