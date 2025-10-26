@@ -40,34 +40,36 @@ jobs:
           echo ".env file created"
         shell: bash
 
+      # 🔹 Generate timestamp early so we can use it to name the report folder
+      - name: 🕒 Generate timestamp
+        id: timestamp
+        run: echo "ts=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
+
       - name: 🧩 Run Playwright tests (headed mode via Xvfb)
         id: run_tests
         run: |
           set -e
           xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
-            npx playwright test --headed
+            npx playwright test --headed --reporter=html
+          mv playwright-report "playwright-report-${{ steps.timestamp.outputs.ts }}"
         env:
           CI: true
-
-      - name: 🕒 Generate timestamp
-        id: timestamp
-        run: echo "ts=$(date +'%Y-%m-%d_%H-%M-%S')" >> $GITHUB_OUTPUT
 
       - name: 📤 Upload Playwright test report artifact
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ steps.timestamp.outputs.ts }}
-          path: playwright-report/
+          path: playwright-report-${{ steps.timestamp.outputs.ts }}
           retention-days: 30
 
       - name: 📁 Prepare timestamped report for Pages
         if: github.ref == 'refs/heads/main'
         run: |
-          mkdir -p ./public/reports/${{ steps.timestamp.outputs.ts }}
-          cp -r playwright-report/* ./public/reports/${{ steps.timestamp.outputs.ts }}/
+          mkdir -p ./public/reports
+          cp -r playwright-report-${{ steps.timestamp.outputs.ts }} ./public/reports/
           echo "Report generated on ${{ steps.timestamp.outputs.ts }}" > ./public/reports/${{ steps.timestamp.outputs.ts }}/README.txt
 
-          # Auto-generate report index
+          # Auto-generate index with timestamped links
           echo "<html><body><h1>Playwright Test Reports</h1><ul>" > ./public/index.html
           for d in $(ls -dt ./public/reports/*/); do
             ts=$(basename "$d")
