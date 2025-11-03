@@ -1,4 +1,4 @@
-name: Test trigger manually
+name: Manual Test Run
 
 on:
   workflow_dispatch:
@@ -55,27 +55,31 @@ jobs:
 
       - name: 🕒 Generate readable timestamp
         id: timestamp
-        run: echo "ts=$(date '+%Y-%m-%d_%I-%M-%S_%p')" >> $GITHUB_OUTPUT
+        run:
+          echo "ts=$(date '+%Y-%m-%d_%I-%M-%S_%p')" >> $GITHUB_OUTPUT
 
+          # 🔹 Run Playwright tests based on selected device
       - name: 🧩 Run Playwright tests (headed mode via Xvfb)
         id: run_tests
         run: |
           set -e
           DEVICE="${{ github.event.inputs.devices }}"
+          SAFE_DEVICE=$(echo "$DEVICE" | tr -d '()' | tr ' ' '-')
+
           echo "▶️ Running Playwright tests for: $DEVICE"
 
-          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" bash -c "
-            if [[ \"$DEVICE\" == \"all\" ]]; then
-              echo 'Running tests for all projects...'
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" bash <<EOF
+            if [[ "$DEVICE" == "all" ]]; then
+              echo "Running tests for all projects..."
               npx playwright test --headed --reporter=html
             else
-              echo 'Running tests for project: ' $DEVICE
-              npx playwright test --project=\"$DEVICE\" --headed --reporter=html
+              echo "Running tests for project: $DEVICE"
+              npx playwright test --project="$DEVICE" --headed --reporter=html
             fi
-          "
+            EOF
 
-          REPORT_DIR=\"playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}\"
-          mv playwright-report \"$REPORT_DIR\"
+          REPORT_DIR="playwright-report-${{ steps.timestamp.outputs.ts }}-${SAFE_DEVICE}"
+          mv playwright-report "\$REPORT_DIR"
         env:
           CI: true
 
