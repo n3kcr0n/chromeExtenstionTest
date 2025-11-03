@@ -10,7 +10,7 @@ on:
         default: Desktop (chromium)
         options:
           - Desktop (chromium)
-          - Dekstop (Microsoft Edge)
+          - Desktop (Microsoft Edge)
           - Mobile Chrome (iPhone 12)
           - Mobile Chrome (iPhone 13)
           - Mobile Chrome (iPhone 15)
@@ -55,10 +55,8 @@ jobs:
 
       - name: 🕒 Generate readable timestamp
         id: timestamp
-        run:
-          echo "ts=$(date '+%Y-%m-%d_%I-%M-%S_%p')" >> $GITHUB_OUTPUT
+        run: echo "ts=$(date '+%Y-%m-%d_%I-%M-%S_%p')" >> $GITHUB_OUTPUT
 
-          # 🔹 Run Playwright tests based on selected device
       - name: 🧩 Run Playwright tests (headed mode via Xvfb)
         id: run_tests
         run: |
@@ -79,29 +77,30 @@ jobs:
             EOF
 
           REPORT_DIR="playwright-report-${{ steps.timestamp.outputs.ts }}-${SAFE_DEVICE}"
-          mv playwright-report "\$REPORT_DIR"
+          echo "Renaming playwright-report → $REPORT_DIR"
+          mv playwright-report "$REPORT_DIR"
+          echo "REPORT_DIR=$REPORT_DIR" >> $GITHUB_ENV
         env:
           CI: true
 
       - name: 📤 Upload Playwright test report artifact
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ steps.timestamp.outputs.ts }}-${{ github.event.inputs.devices }}
-          path: playwright-report-${{ steps.timestamp.outputs.ts }}-${{ github.event.inputs.devices }}
+          name: ${{ env.REPORT_DIR }}
+          path: ${{ env.REPORT_DIR }}
           retention-days: 30
 
       - name: 📁 Prepare timestamped report for Pages
         if: github.ref == 'refs/heads/main'
         run: |
-          DEVICE="${{ github.event.inputs.devices }}"
           mkdir -p ./public/reports
-          mv playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE} ./public/reports/playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}
+          mv "${{ env.REPORT_DIR }}" ./public/reports/
 
-          echo "Report generated on ${{ steps.timestamp.outputs.ts }} for device ${DEVICE}" > ./public/reports/playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}/README.txt
+          echo "Report generated on ${{ steps.timestamp.outputs.ts }}" > ./public/reports/${{ env.REPORT_DIR }}/README.txt
 
           # 🖤 Auto-generate dark themed HTML index with redirect & timestamp badge
           echo "<html><head><title>Playwright Test Reports</title>
-          <meta http-equiv='refresh' content='5;url=reports/playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}/index.html'>
+          <meta http-equiv='refresh' content='5;url=reports/${{ env.REPORT_DIR }}/index.html'>
           <style>
           body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; background-color: #0d1117; color: #c9d1d9; }
           h1, h2 { color: #58a6ff; }
@@ -117,7 +116,7 @@ jobs:
 
           echo "<h1>Playwright Test Reports</h1>" >> ./public/index.html
           echo "<div class='redirect'>⏳ Redirecting automatically to the latest report...<br>
-          If you are not redirected in 5 seconds, <a href='reports/playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}/index.html'>click here</a>.</div>" >> ./public/index.html
+          If you are not redirected in 5 seconds, <a href='reports/${{ env.REPORT_DIR }}/index.html'>click here</a>.</div>" >> ./public/index.html
 
           latest=$(ls -dt ./public/reports/playwright-report-* | head -1)
           latest_ts=$(basename "$latest")
