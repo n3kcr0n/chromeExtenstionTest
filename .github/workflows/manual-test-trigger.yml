@@ -86,72 +86,72 @@ jobs:
         env:
           CI: true
 
-      - name: 📤 Upload Playwright test report artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.run_tests.outputs.report_dir }}
-          path: ${{ steps.run_tests.outputs.report_dir }}
-          retention-days: 30
+      # - name: 📤 Upload Playwright test report artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ steps.run_tests.outputs.report_dir }}
+      #     path: ${{ steps.run_tests.outputs.report_dir }}
+      #     retention-days: 30
 
-      - name: 📁 Prepare timestamped report for Pages
-        if: github.ref == 'refs/heads/main'
-        run: |
-          REPORT_DIR="${{ steps.run_tests.outputs.report_dir }}"
-          DEVICE="${{ steps.run_tests.outputs.device }}"
-          mkdir -p ./public/reports
-          mv "$REPORT_DIR" "./public/reports/$REPORT_DIR"
+      # - name: 📁 Prepare timestamped report for Pages
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     REPORT_DIR="${{ steps.run_tests.outputs.report_dir }}"
+      #     DEVICE="${{ steps.run_tests.outputs.device }}"
+      #     mkdir -p ./public/reports
+      #     mv "$REPORT_DIR" "./public/reports/$REPORT_DIR"
 
-          echo "Report generated on ${{ steps.timestamp.outputs.ts }} for device ${DEVICE}" > "./public/reports/$REPORT_DIR/README.txt"
+      #     echo "Report generated on ${{ steps.timestamp.outputs.ts }} for device ${DEVICE}" > "./public/reports/$REPORT_DIR/README.txt"
 
-          echo "<html><head><title>Playwright Test Reports</title>
-          <meta http-equiv='refresh' content='5;url=reports/${REPORT_DIR}/index.html'>
-          <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; background-color: #0d1117; color: #c9d1d9; }
-          h1, h2 { color: #58a6ff; }
-          a { text-decoration: none; color: #58a6ff; }
-          a:hover { text-decoration: underline; }
-          .latest { background: #238636; color: #fff; padding: 10px 15px; border-radius: 8px; margin-bottom: 25px; display: inline-block; font-weight: bold; }
-          .badge { background: #30363d; color: #8b949e; border-radius: 12px; padding: 4px 10px; font-size: 12px; margin-left: 10px; vertical-align: middle; }
-          ul { list-style-type: none; padding: 0; margin-top: 10px; }
-          li { margin: 8px 0; font-size: 16px; }
-          .footer { margin-top: 40px; font-size: 12px; color: #8b949e; border-top: 1px solid #30363d; padding-top: 10px; }
-          .redirect { background: #161b22; border: 1px solid #30363d; padding: 12px; border-radius: 6px; margin-bottom: 20px; }
-          </style></head><body>" > ./public/index.html
+      #     echo "<html><head><title>Playwright Test Reports</title>
+      #     <meta http-equiv='refresh' content='5;url=reports/${REPORT_DIR}/index.html'>
+      #     <style>
+      #     body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; background-color: #0d1117; color: #c9d1d9; }
+      #     h1, h2 { color: #58a6ff; }
+      #     a { text-decoration: none; color: #58a6ff; }
+      #     a:hover { text-decoration: underline; }
+      #     .latest { background: #238636; color: #fff; padding: 10px 15px; border-radius: 8px; margin-bottom: 25px; display: inline-block; font-weight: bold; }
+      #     .badge { background: #30363d; color: #8b949e; border-radius: 12px; padding: 4px 10px; font-size: 12px; margin-left: 10px; vertical-align: middle; }
+      #     ul { list-style-type: none; padding: 0; margin-top: 10px; }
+      #     li { margin: 8px 0; font-size: 16px; }
+      #     .footer { margin-top: 40px; font-size: 12px; color: #8b949e; border-top: 1px solid #30363d; padding-top: 10px; }
+      #     .redirect { background: #161b22; border: 1px solid #30363d; padding: 12px; border-radius: 6px; margin-bottom: 20px; }
+      #     </style></head><body>" > ./public/index.html
 
-          echo "<h1>Playwright Test Reports</h1>" >> ./public/index.html
-          echo "<div class='redirect'>⏳ Redirecting automatically to the latest report...<br>
-          If you are not redirected in 5 seconds, <a href='reports/${REPORT_DIR}/index.html'>click here</a>.</div>" >> ./public/index.html
+      #     echo "<h1>Playwright Test Reports</h1>" >> ./public/index.html
+      #     echo "<div class='redirect'>⏳ Redirecting automatically to the latest report...<br>
+      #     If you are not redirected in 5 seconds, <a href='reports/${REPORT_DIR}/index.html'>click here</a>.</div>" >> ./public/index.html
 
-          latest=$(ls -dt ./public/reports/playwright-report-* | head -1)
-          latest_ts=$(basename "$latest")
+      #     latest=$(ls -dt ./public/reports/playwright-report-* | head -1)
+      #     latest_ts=$(basename "$latest")
 
-          echo "<a class='latest' href='reports/${latest_ts}/index.html'>View Latest Report (${latest_ts})</a>" >> ./public/index.html
-          echo "<span class='badge'>Last updated: $(date '+%B %d, %Y %I:%M:%S %p')</span>" >> ./public/index.html
+      #     echo "<a class='latest' href='reports/${latest_ts}/index.html'>View Latest Report (${latest_ts})</a>" >> ./public/index.html
+      #     echo "<span class='badge'>Last updated: $(date '+%B %d, %Y %I:%M:%S %p')</span>" >> ./public/index.html
 
-          echo "<h2>All Reports</h2><ul>" >> ./public/index.html
-          for d in $(ls -dt ./public/reports/playwright-report-*); do
-            ts=$(basename "$d")
-            echo "<li>🕒 <a href=\"reports/${ts}/index.html\">${ts}</a></li>" >> ./public/index.html
-          done
+      #     echo "<h2>All Reports</h2><ul>" >> ./public/index.html
+      #     for d in $(ls -dt ./public/reports/playwright-report-*); do
+      #       ts=$(basename "$d")
+      #       echo "<li>🕒 <a href=\"reports/${ts}/index.html\">${ts}</a></li>" >> ./public/index.html
+      #     done
 
-          echo "</ul><div class='footer'>Generated automatically via GitHub Actions · $(date)</div></body></html>" >> ./public/index.html
+      #     echo "</ul><div class='footer'>Generated automatically via GitHub Actions · $(date)</div></body></html>" >> ./public/index.html
 
-      - name: 🚀 Deploy Playwright report to GitHub Pages (keep history)
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
-          publish_branch: gh-pages
-          keep_files: true
-          commit_message: "📊 Publish Playwright report (${{ github.event.inputs.devices }}) - ${{ steps.timestamp.outputs.ts }}"
+      # - name: 🚀 Deploy Playwright report to GitHub Pages (keep history)
+      #   if: github.ref == 'refs/heads/main'
+      #   uses: peaceiris/actions-gh-pages@v4
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./public
+      #     publish_branch: gh-pages
+      #     keep_files: true
+      #     commit_message: "📊 Publish Playwright report (${{ github.event.inputs.devices }}) - ${{ steps.timestamp.outputs.ts }}"
 
-      - name: 🧹 Keep only latest 10 reports
-        if: github.ref == 'refs/heads/main'
-        run: |
-          git fetch origin gh-pages
-          git checkout gh-pages
-          ls -td reports/playwright-report-* | tail -n +11 | xargs rm -rf || true
-          git add .
-          git commit -m "🧹 Clean old reports" || true
-          git push origin gh-pages
+      # - name: 🧹 Keep only latest 10 reports
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     git fetch origin gh-pages
+      #     git checkout gh-pages
+      #     ls -td reports/playwright-report-* | tail -n +11 | xargs rm -rf || true
+      #     git add .
+      #     git commit -m "🧹 Clean old reports" || true
+      #     git push origin gh-pages
