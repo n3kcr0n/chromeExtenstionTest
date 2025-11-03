@@ -1,9 +1,23 @@
-name: Chromium Extension Playwright Tests
+name: Test trigger manually
 
 on:
-  push:
-    branches: [main, feature, develop]
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      devices:
+        type: choice
+        required: true
+        description: Select a device (or "all" to run all tests)
+        default: Desktop (chromium)
+        options:
+          - Dekstop (Microsoft Edge)
+          - Mobile Chrome (iPhone 12)
+          - Mobile Chrome (iPhone 13)
+          - Mobile Chrome (iPhone 15)
+          - Mobile Chrome (Pixel 5)
+          - Mobile Chrome (Nexus 6P)
+          - Mobile Chrome (Galaxy S5)
+          - API Tests
+          - all
 
 permissions:
   contents: write
@@ -38,7 +52,6 @@ jobs:
           echo ".env file created"
         shell: bash
 
-      # 🔹 Generate timestamp early so we can use it to name the report folder
       - name: 🕒 Generate readable timestamp
         id: timestamp
         run: echo "ts=$(date '+%Y-%m-%d_%I-%M-%S_%p')" >> $GITHUB_OUTPUT
@@ -47,30 +60,43 @@ jobs:
         id: run_tests
         run: |
           set -e
-          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
-            npx playwright test --headed --reporter=html
-          mv playwright-report "playwright-report-${{ steps.timestamp.outputs.ts }}"
+          DEVICE="${{ github.event.inputs.devices }}"
+          echo "▶️ Running Playwright tests for: $DEVICE"
+
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" bash -c "
+            if [[ \"$DEVICE\" == \"all\" ]]; then
+              echo 'Running tests for all projects...'
+              npx playwright test --headed --reporter=html
+            else
+              echo 'Running tests for project: ' $DEVICE
+              npx playwright test --project=\"$DEVICE\" --headed --reporter=html
+            fi
+          "
+
+          REPORT_DIR=\"playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}\"
+          mv playwright-report \"$REPORT_DIR\"
         env:
           CI: true
 
       - name: 📤 Upload Playwright test report artifact
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ steps.timestamp.outputs.ts }}
-          path: playwright-report-${{ steps.timestamp.outputs.ts }}
+          name: playwright-report-${{ steps.timestamp.outputs.ts }}-${{ github.event.inputs.devices }}
+          path: playwright-report-${{ steps.timestamp.outputs.ts }}-${{ github.event.inputs.devices }}
           retention-days: 30
 
       - name: 📁 Prepare timestamped report for Pages
         if: github.ref == 'refs/heads/main'
         run: |
+          DEVICE="${{ github.event.inputs.devices }}"
           mkdir -p ./public/reports
-          mv playwright-report-${{ steps.timestamp.outputs.ts }} ./public/reports/playwright-report-${{ steps.timestamp.outputs.ts }}
+          mv playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE} ./public/reports/playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}
 
-          echo "Report generated on ${{ steps.timestamp.outputs.ts }}" > ./public/reports/playwright-report-${{ steps.timestamp.outputs.ts }}/README.txt
+          echo "Report generated on ${{ steps.timestamp.outputs.ts }} for device ${DEVICE}" > ./public/reports/playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}/README.txt
 
           # 🖤 Auto-generate dark themed HTML index with redirect & timestamp badge
           echo "<html><head><title>Playwright Test Reports</title>
-          <meta http-equiv='refresh' content='5;url=reports/playwright-report-${{ steps.timestamp.outputs.ts }}/index.html'>
+          <meta http-equiv='refresh' content='5;url=reports/playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}/index.html'>
           <style>
           body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; background-color: #0d1117; color: #c9d1d9; }
           h1, h2 { color: #58a6ff; }
@@ -86,16 +112,16 @@ jobs:
 
           echo "<h1>Playwright Test Reports</h1>" >> ./public/index.html
           echo "<div class='redirect'>⏳ Redirecting automatically to the latest report...<br>
-          If you are not redirected in 5 seconds, <a href='reports/playwright-report-${{ steps.timestamp.outputs.ts }}/index.html'>click here</a>.</div>" >> ./public/index.html
+          If you are not redirected in 5 seconds, <a href='reports/playwright-report-${{ steps.timestamp.outputs.ts }}-${DEVICE}/index.html'>click here</a>.</div>" >> ./public/index.html
 
-          latest=$(ls -dt ./public/reports/playwright-report-*/ | head -1)
+          latest=$(ls -dt ./public/reports/playwright-report-* | head -1)
           latest_ts=$(basename "$latest")
 
           echo "<a class='latest' href='reports/${latest_ts}/index.html'>View Latest Report (${latest_ts})</a>" >> ./public/index.html
           echo "<span class='badge'>Last updated: $(date '+%B %d, %Y %I:%M:%S %p')</span>" >> ./public/index.html
 
           echo "<h2>All Reports</h2><ul>" >> ./public/index.html
-          for d in $(ls -dt ./public/reports/playwright-report-*/); do
+          for d in $(ls -dt ./public/reports/playwright-report-*); do
             ts=$(basename "$d")
             echo "<li>🕒 <a href=\"reports/${ts}/index.html\">${ts}</a></li>" >> ./public/index.html
           done
@@ -110,9 +136,8 @@ jobs:
           publish_dir: ./public
           publish_branch: gh-pages
           keep_files: true
-          commit_message: "📊 Publish Playwright report - ${{ steps.timestamp.outputs.ts }}"
+          commit_message: "📊 Publish Playwright report (${{ github.event.inputs.devices }}) - ${{ steps.timestamp.outputs.ts }}"
 
-      # --- Clean up old reports (optional, keeps latest 10) ---
       - name: 🧹 Keep only latest 10 reports
         run: |
           git fetch origin gh-pages
