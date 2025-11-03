@@ -57,7 +57,6 @@ jobs:
         id: timestamp
         run: echo "ts=$(date '+%Y-%m-%d_%I-%M-%S_%p')" >> $GITHUB_OUTPUT
 
-      # Run Playwright tests
       - name: 🧩 Run Playwright tests (headed mode via Xvfb)
         id: run_tests
         run: |
@@ -81,33 +80,31 @@ jobs:
           echo "Renaming playwright-report → $REPORT_DIR"
           mv playwright-report "$REPORT_DIR"
 
-          # Persist for later steps
-          echo "REPORT_DIR=$REPORT_DIR" >> $GITHUB_ENV
+          echo "report_dir=$REPORT_DIR" >> $GITHUB_OUTPUT
+          echo "safe_device=$SAFE_DEVICE" >> $GITHUB_OUTPUT
+          echo "device=$DEVICE" >> $GITHUB_OUTPUT
         env:
           CI: true
 
       - name: 📤 Upload Playwright test report artifact
         uses: actions/upload-artifact@v4
-        env:
-          REPORT_DIR: ${{ env.REPORT_DIR }}
         with:
-          name: ${{ env.REPORT_DIR }}
-          path: ${{ env.REPORT_DIR }}
+          name: ${{ steps.run_tests.outputs.report_dir }}
+          path: ${{ steps.run_tests.outputs.report_dir }}
           retention-days: 30
 
       - name: 📁 Prepare timestamped report for Pages
         if: github.ref == 'refs/heads/main'
-        env:
-          REPORT_DIR: ${{ env.REPORT_DIR }}
         run: |
+          REPORT_DIR="${{ steps.run_tests.outputs.report_dir }}"
+          DEVICE="${{ steps.run_tests.outputs.device }}"
           mkdir -p ./public/reports
-          mv "$REPORT_DIR" ./public/reports/
+          mv "$REPORT_DIR" "./public/reports/$REPORT_DIR"
 
-          echo "Report generated on ${{ steps.timestamp.outputs.ts }}" > ./public/reports/$REPORT_DIR/README.txt
+          echo "Report generated on ${{ steps.timestamp.outputs.ts }} for device ${DEVICE}" > "./public/reports/$REPORT_DIR/README.txt"
 
-          # 🖤 Auto-generate dark themed HTML index with redirect & timestamp badge
           echo "<html><head><title>Playwright Test Reports</title>
-          <meta http-equiv='refresh' content='5;url=reports/$REPORT_DIR/index.html'>
+          <meta http-equiv='refresh' content='5;url=reports/${REPORT_DIR}/index.html'>
           <style>
           body { font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; background-color: #0d1117; color: #c9d1d9; }
           h1, h2 { color: #58a6ff; }
@@ -123,7 +120,7 @@ jobs:
 
           echo "<h1>Playwright Test Reports</h1>" >> ./public/index.html
           echo "<div class='redirect'>⏳ Redirecting automatically to the latest report...<br>
-          If you are not redirected in 5 seconds, <a href='reports/$REPORT_DIR/index.html'>click here</a>.</div>" >> ./public/index.html
+          If you are not redirected in 5 seconds, <a href='reports/${REPORT_DIR}/index.html'>click here</a>.</div>" >> ./public/index.html
 
           latest=$(ls -dt ./public/reports/playwright-report-* | head -1)
           latest_ts=$(basename "$latest")
@@ -150,6 +147,7 @@ jobs:
           commit_message: "📊 Publish Playwright report (${{ github.event.inputs.devices }}) - ${{ steps.timestamp.outputs.ts }}"
 
       - name: 🧹 Keep only latest 10 reports
+        if: github.ref == 'refs/heads/main'
         run: |
           git fetch origin gh-pages
           git checkout gh-pages
