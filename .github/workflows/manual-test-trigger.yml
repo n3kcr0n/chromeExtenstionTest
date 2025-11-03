@@ -9,6 +9,7 @@ on:
         description: Select a device (or "all" to run all tests)
         default: Desktop (chromium)
         options:
+          - Desktop (chromium)
           - Dekstop (Microsoft Edge)
           - Mobile Chrome (iPhone 12)
           - Mobile Chrome (iPhone 13)
